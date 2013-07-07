@@ -13,7 +13,7 @@ that didn't compromise on too many points.
 - Global query parameters (I'd prefer local ones, but this really does not
   seem possible without modifying the internal `RouteRecogizer`). The syntax
   is what you know from the web: "/url/to/something?key=value&key2=value2"
-- Updates only route context's whose parameters change.
+- Updates only route contexts whose parameters change.
 - Very little configuration - only requires an `observesParameters` property
   in your route handlers (see "How to use").
 - Automatically maintains parent query parameters when traversing to child routes.
@@ -68,12 +68,46 @@ The full configuration options are:
 Because `transitionTo` is included in three places (router, route, controller)
 I wanted to avoid having to create a different `transitionToWithQuery`
 everywhere. I therefore introduced the Ember.Router.QueryParameters object,
-an instance of which can passed as the first context to `transitionTo`,
-containing key/value pairs of the query parameters you want to update. This
-also means automatic compatibility with the `linkTo` helper and the `LinkView`.
+an instance of which can be passed as the first context to `transitionTo`,
+containing key/value pairs of the query parameters you want to update:
+
+```js
+	var params = Ember.Router.QueryParameters.create({ sort: 'date:desc' });
+	this.transitionTo('posts.index', params);
+```
+
+To remove an existing parameter, set a "falsy" value (null/undefined/false)
+in the `QueryParameters` object.
+
+This approach means automatic compatibility with the `linkTo` helper and the `LinkView`,
+so assuming you have a `params` object in your context this should both create a valid
+link and direct to the correct route:
+
+```handlebars
+	{{#linkTo "posts.index" params}}Click{{/linkTo}
+```
+
 When transitioning to a child route, parent query string parameters are maintained
-by default. To remove a parameter, pass a "falsy" value (null/undefined/false)
-in the QueryParameters object.
+Say you have a route setup like this:
+
+```js
+	this.resource('posts', function() {
+		this.route('view');
+	});
+```
+
+Where `posts` actually loads the list of posts, not `posts.index`. If your current
+URL is `/posts?sort=date:asc` (so the sort parameter belongs to the `PostsRoute`),
+this link:
+
+```handlebars
+	{{#linkTo "posts.view" post}}post.title{{/linkTo}}
+```
+
+Would yield the following HTML:
+```html
+<a href="/posts/23?sort=date:asc">Title</a>
+```
 
 # How it works
 The main problem this implementation is solving is updating contexts of routes
@@ -95,13 +129,6 @@ method is called for the route, followed by `setupController` to actually
 update its values.
 
 Another important feature is maintaining query parameters of active routes
-throughout transitions. Say you have a route setup of "posts" and "posts.view",
-and you're currently in a URL state like "/posts?sort=date". Assuming the
-"posts" route holds the list of posts (and not the "posts.index" route),
-when moving to a specific post you do not want the sort of the "posts" route
-to change. In other words, you want to transition to "/posts/10?sort=date"
-to maintain the sorting order of the "posts" route while viewing a specific
-post. This implementation solves this problem by finding a match point
-for transitions (something Ember also does internally when determining
-which route handlers to update) and merging all parameters below this
-match point with the new request.
+throughout transitions. This is solved by partially copying an internal
+function that finds the match point of a route, and maintaining all query
+parameters below it.
