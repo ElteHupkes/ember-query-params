@@ -318,7 +318,7 @@
 	 */
 	var queryPartition = function(router, handlerName, contexts) {
 		var queryParams = {},
-			currentHandlerInfos = router.currentHandlerInfos,
+			currentHandlerInfos = router.currentHandlerInfos || [],
 			overrideParams, handlers,
 			matchPoint;
 
