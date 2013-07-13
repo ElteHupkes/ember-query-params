@@ -150,7 +150,7 @@
 							};
 						})(),
 						updateFunc = (function() {
-							var controller = handler.controllerFor(handler.routeName),
+							var controller = handler.controllerFor(handler.controllerName || handler.routeName),
 								han = handler;
 
 							return function(context) {
