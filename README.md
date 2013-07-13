@@ -9,6 +9,7 @@ close look at the router to see if I couldn't implement something
 that didn't compromise on too many points.
 
 # Features
+- Compatible with Ember.JS RC6
 - Location API independent - it doesn't matter if you use `HashLocation` or `HistoryLocation`.
 - Global query parameters (I'd prefer local ones, but this really does not
   seem possible without modifying the internal `RouteRecogizer`). The syntax
