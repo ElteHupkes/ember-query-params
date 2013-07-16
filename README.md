@@ -32,7 +32,8 @@ more processing after you retrieve the parameters though.
 
 # How to use
 ## File setup
-Just include the supplied `Router.js` file somewhere in your project.
+Just include the supplied `Router.js` file somewhere in your project. Right after Ember.js should be fine -
+it's important that it's executed before routing starts.
 
 ## Route configuration
 The most simple setup to work with query parameters
