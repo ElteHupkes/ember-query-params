@@ -30,6 +30,12 @@ a this point - honestly I built this for myself and I only
 require plain key / value params. You can always do some
 more processing after you retrieve the parameters though.
 
+# Working examples
+There is a LiveWeave I quickly put together: http://liveweave.com/QLJ0f1. Unfortunately LiveWeave wraps the app
+so you cannot see the URL, but if you copy-paste the code to an HTML file it should work right away.
+
+GitHub use @cavneb has also created a basic example: https://github.com/cavneb/ember-query-params_example.
+
 # How to use
 ## File setup
 Just include the supplied `Router.js` file somewhere in your project. Right after Ember.js should be fine -
