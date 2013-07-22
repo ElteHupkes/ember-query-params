@@ -400,7 +400,10 @@
 	// below that calculates it.
 	// TODO use active transition information
 	var getMatchPoint = function (router, handlers, objects) {
-		var matchPoint = handlers.length, i,
+		// If no match point is found, the last route is always matched
+		// to any potential query parameters object; so return length - 1
+		// by default.
+		var matchPoint = handlers.length - 1, i,
 			currentHandlerInfos = router.currentHandlerInfos || [],
 			nrObjects = objects.length;
 
