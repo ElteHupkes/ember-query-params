@@ -347,7 +347,8 @@
 		handlers = router.recognizer.handlersFor(handlerName);
 		matchPoint = getMatchPoint(router, handlers, contexts);
 
-		for (var i = 0, l = currentHandlerInfos.length; i < l, i < matchPoint; i++) {
+		var l = currentHandlerInfos.length;
+		for (var i = 0; i < l, i < matchPoint; i++) {
 			var handlerObj = currentHandlerInfos[i],
 				handler = handlerObj.handler;
 
