@@ -42,12 +42,9 @@
 			// Update the query string and query parameters
 			this.set('queryString', parts.length < 2 ? '' : parts[1]);
 			return this._super(parts[0]).then(function() {
-				// When the transition has completed,
-				// we're going to check which routes
-				// are left with "dirty" contents due
-				// to changed query parameters. We're
-				// then going to trampoline in order
-				// to update these routes.
+				// When the transition has completed, we're going to check which routes
+				// are left with "dirty" contents due to changed query parameters. We're
+				// then going to update these route's contexts.
 				that.updateParameterContexts(oldInfos);
 			});
 		},
@@ -96,7 +93,27 @@
 			transition.promise.then(function() {
 				// Update routes that weren't refreshed with their
 				// new query parameters
-				that.updateParameterContexts(oldInfos);
+				if (that.updateParameterContexts(oldInfos)) {
+					// If one of the query-contexts has changed but the active
+					// URL hasn't, this means that we're a "victim" of the new
+					// check in Ember RC7 that doesn't finalize the transition
+					// if routes + contexts stay the same. In that case we have
+					// to update the URL manually.
+					// There is a cleaner way of doing this by detecting the change
+					// within `updateParameterContexts`, but that would result in
+					// the URL to be changed twice in RC6.
+					var currentURL = that.location.getURL(),
+						newURL = currentURL.split('?', 1)[0],
+						qs = that.get('queryString');
+
+					if (qs) {
+						newURL += '?'+qs;
+					}
+
+					if (newURL !== currentURL) {
+						that.location.setURL(newURL);
+					}
+				}
 			});
 
 			return transition;
@@ -119,9 +136,12 @@
 		 * to jump to the parent of the highest-level dirty route.
 		 *
 		 * @param oldInfos {Array}
+		 * @return {Boolean} Whether any existing route's query contexts
+		 * 					 have changed.
 		 */
 		updateParameterContexts: function(oldInfos) {
-			var currentInfos = this.router.currentHandlerInfos;
+			var currentInfos = this.router.currentHandlerInfos,
+				queryContextHasChanged = false;
 
 			for (var i = 0, l = currentInfos.length; i < l; i++) {
 				var handlerObj = currentInfos[i],
@@ -142,13 +162,15 @@
 				// Check if we were previously in this state - if not
 				// we can assume model() was called and the query params
 				// are assumed up to date.
-				if (!oldObj || oldObj.name !== handlerObj.name ||
-					oldObj.context !== handler.context) {
+				if ((!oldObj || oldObj.name !== handlerObj.name
+					|| oldObj.context !== handler.context)) {
 					handler.currentQueryParams = handlerParams;
 					continue;
 				}
 
 				if (parametersDiffer(handler.currentQueryParams, handlerParams)) {
+					queryContextHasChanged = true;
+
 					// Update query parameters by calling modelWithQuery
 					// In line with the new router changes I'll allow this
 					// to return a promise, which is why we need these obnoxious
@@ -180,6 +202,8 @@
 						.then(updateFunc);
 				}
 			}
+
+			return queryContextHasChanged;
 		}
 	});
 
