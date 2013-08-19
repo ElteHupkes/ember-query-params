@@ -50,6 +50,30 @@
 		},
 
 		/**
+		 * Checks whether the query parameters in the URL
+		 * still match the active query parameter object,
+		 * and updates the URL if they don't. This is can
+		 * be used to update the URL without transitioning
+		 * if query parameters are changed internally. It
+		 * is also used after a transition to bypass Ember
+		 * not updating the URL when transitioning to the
+		 * same route.
+		 */
+		synchronizeURL: function() {
+			var currentURL = this.location.getURL(),
+				newURL = currentURL.split('?', 1)[0],
+				qs = this.get('queryString');
+
+			if (qs) {
+				newURL += '?'+qs;
+			}
+
+			if (newURL !== currentURL) {
+				this.location.setURL(newURL);
+			}
+		},
+
+		/**
 		 * In this hook the router's updateURL method is
 		 * created - this method is used to set the new URL
 		 * after a transition. The new URL that will be set
@@ -102,17 +126,7 @@
 					// There is a cleaner way of doing this by detecting the change
 					// within `updateParameterContexts`, but that would result in
 					// the URL to be changed twice in RC6.
-					var currentURL = that.location.getURL(),
-						newURL = currentURL.split('?', 1)[0],
-						qs = that.get('queryString');
-
-					if (qs) {
-						newURL += '?'+qs;
-					}
-
-					if (newURL !== currentURL) {
-						that.location.setURL(newURL);
-					}
+					that.synchronizeURL();
 				}
 			});
 
