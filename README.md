@@ -1,15 +1,13 @@
 # Query string parameters for Ember.js
 
-Query parameters are something I have been missing in Ember.js
-pretty much from the moment I started using it. There is
-[an open issue for it](https://github.com/emberjs/ember.js/issues/1773)
-where several workarounds have been offered, but nothing
-has really served me properly thusfar. I therefore took a
-close look at the router to see if I couldn't implement something
-that didn't compromise on too many points.
+**Update:** Now that [this pull request](https://github.com/emberjs/ember.js/pull/3182) has been merged, we will
+soon have native query params in Ember. That pr has features very similar to this plugin, but they come
+with unit tests and everything and are therefore more awesome. I will maintain this until there is a 
+stable version of Ember with query params, after that this will be obsolete. Many thanks to Alex Speller 
+for doing al the hard work on the pull request!
 
 # Features
-- Compatible with Ember.JS RC6 / RC7
+- Compatible with Ember.JS RC6+ (works with 1.0)
 - Location API independent - it doesn't matter if you use `HashLocation` or `HistoryLocation`.
 - Global query parameters (I'd prefer local ones, but this really does not
   seem possible without modifying the internal `RouteRecogizer`). The syntax
